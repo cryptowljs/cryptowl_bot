@@ -1,0 +1,58 @@
+{
+  "name": "@cryptowl/bot",
+  "version": "0.1.0",
+  "description": "",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js --delay 1",
+    "start": "node src/index.js",
+    "lint": "eslint ."
+  },
+  "files": [
+    "src",
+    "docs",
+    "config"
+  ],
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cryptowljs/cryptowl-bot.git"
+  },
+  "author": {
+    "email": "patricio@lopezjuri.com",
+    "name": "Patricio López Juri",
+    "url": "https://lopezjuri.com",
+    "telegram": "mrpatiwi"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@cryptolatam/cryptomkt": "^0.2.1",
+    "@cryptolatam/money": "^0.1.7",
+    "@cryptolatam/surbtc": "^0.2.1",
+    "axios": "^0.16.2",
+    "bluebird": "^3.5.1",
+    "dedent": "^0.7.0",
+    "dotenv": "^4.0.0",
+    "koa": "^2.4.1",
+    "koa-bodyparser": "^4.2.0",
+    "koa-logger": "^3.1.0",
+    "koa-router": "^7.3.0",
+    "lodash": "^4.17.4",
+    "moment": "^2.19.1",
+    "nconf": "^0.8.5",
+    "rxjs": "^5.4.2",
+    "telegraf": "^3.17.2"
+  },
+  "optionalDependencies": {},
+  "peerDependencies": {},
+  "devDependencies": {
+    "eslint": "^4.9.0",
+    "eslint-config-prettier": "^2.6.0",
+    "eslint-plugin-prettier": "^2.3.1",
+    "nodemon": "^1.12.1",
+    "prettier": "^1.7.4"
+  }
+}

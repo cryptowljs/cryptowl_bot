@@ -1,0 +1,12 @@
+{
+  "NODE_ENV": "development",
+  "PORT": 4000,
+  "APP_URL": null,
+  "NOW_URL": null,
+  "URL": null,
+  "TELEGRAM": {
+    "TOKEN": null,
+    "USERNAME": null,
+    "SECRET_PATH": null
+  }
+}

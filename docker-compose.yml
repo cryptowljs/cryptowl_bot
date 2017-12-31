@@ -1,0 +1,16 @@
+version: '2'
+services:
+  bot:
+    build: .
+    restart: always
+    ports:
+      - 80:4000
+      - 443:4000
+      - 4000:4000
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - URL
+      - TELEGRAM__TOKEN
+      - TELEGRAM__USERNAME
+      - TELEGRAM__SECRET_PATH
