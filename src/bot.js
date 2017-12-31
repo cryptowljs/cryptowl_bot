@@ -10,8 +10,34 @@ module.exports = function createBot(options) {
   });
   bot.telegram.setWebhook(`${config.get("URL")}/${config.get("TELEGRAM:SECRET_PATH")}`);
 
-  bot.command("help", ctx => ctx.reply("Try send a sticker!"));
-  bot.hears("hi", ctx => ctx.reply("Hey there!"));
+  // TODO: commands should accept RegEx.
+
+  /*
+    Example:
+    /BTC_CLP_USD
+  */
+  bot.hears(/^\/([A-z0-9]+)_([A-z0-9]+)_([A-z0-9]+)$/, async ctx => {
+    const [, coin, change, convert] = ctx.match.map(s => s.toUpperCase());
+    ctx.reply([coin, change, convert]);
+  });
+
+  /*
+    Example:
+    /BTC_CLP
+  */
+  bot.hears(/^\/([A-z0-9]+)_([A-z0-9]+)$/, async ctx => {
+    const [, coin, change] = ctx.match.map(s => s.toUpperCase());
+    ctx.reply([coin, change]);
+  });
+
+  /*
+    Example:
+    /BTC
+  */
+  bot.hears(/^\/([A-z0-9]+)$/, async ctx => {
+    const [, coin] = ctx.match.map(s => s.toUpperCase());
+    ctx.reply([coin]);
+  });
 
   return bot;
 };
