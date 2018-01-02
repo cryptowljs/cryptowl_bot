@@ -2,6 +2,7 @@
 
 const Koa = require("koa");
 const bodyParser = require("koa-bodyparser");
+const logger = require("koa-logger");
 const Router = require("koa-router");
 
 const dedent = require("dedent");
@@ -23,13 +24,15 @@ const bot = createBot({
 const app = new Koa();
 const router = new Router();
 
+router.use(logger());
 router.use(bodyParser());
 
 router.get("/", ctx => {
   ctx.body = "Hello world";
 });
 
-router.post(`/${config.get("TELEGRAM:SECRET_PATH")}`, ctx => {
+router.post(`/${config.get("TELEGRAM:SECRET_PATH")}`, async ctx => {
+  ctx.body = "ok";
   return bot.handleUpdate(ctx.request.body, ctx.response);
 });
 
