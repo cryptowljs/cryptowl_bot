@@ -1,0 +1,17 @@
+start - Start this bot
+top - Show top coins
+top_clp - Show top coins converted
+btc - Bitcoin
+btc_clp - Bitcoin converted
+eth - Ethereum
+xrp - Ripple
+bch - BCash
+ada - Cardano
+ltc - Litecoin
+miota - IOTA
+xem - NEM
+xlm - Stellar
+dash - Dash
+xmr - Monero
+neo - NEO
+eos - EOS
