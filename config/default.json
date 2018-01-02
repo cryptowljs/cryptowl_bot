@@ -8,5 +8,14 @@
     "TOKEN": null,
     "USERNAME": null,
     "SECRET_PATH": null
+  },
+  "DONATIONS": {
+    "BTC": null,
+    "ETH": null,
+    "DASH": null,
+    "BCH": null,
+    "LTC": null,
+    "CHA": null,
+    "ADA": null
   }
 }

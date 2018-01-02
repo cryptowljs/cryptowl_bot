@@ -14,7 +14,7 @@ const moneyData = require("@cryptolw/money-data");
 const coins = require("./data/meta");
 
 module.exports = function createBot(options) {
-  const { config } = options;
+  const { config, info } = options;
 
   const { format } = formatter([moneyData.crypto, moneyData.fiat]);
 
@@ -36,6 +36,68 @@ module.exports = function createBot(options) {
       ctx.message.text = ctx.message.text.replace(new RegExp("@" + bot.options.username, "i"), "");
     }
     return next(ctx);
+  });
+
+  bot.command("start", ctx => {
+    ctx.replyWithMarkdown(dedent`
+      👋 Hi there! This is Cryptowl Bot 🦉🔮
+
+      This bot uses coinmarketcap.com as it's main source of information.
+
+      👉 Type /help to see available commands.
+      👉 Type /donations to keep this bot alive 🙂
+    `);
+  });
+
+  bot.command("help", ctx => {
+    ctx.replyWithMarkdown(dedent`
+      *Some commands:*
+
+      \`/top[number][_convert]\`
+      Ranked coins and optionally convert the _fiat_ value.
+      /top /top\_CLP /top20 /top20\_CLP
+
+      \`/(coin)[_convert]\`
+      Particular coin and optionally convert the _fiat_ value.
+      /BTC /eth /MIOTA\_CLP /neo\_eur
+
+      👉 Type /donations to keep this bot alive 🙂
+    `);
+  });
+
+  bot.command("about", ctx => {
+    ctx.replyWithMarkdown(dedent`
+      *@cryptowl_bot (${info.version})*
+      *License:* ${info.license}
+      *Repository:* ${info.repository.url}
+
+      *coinmarketcap.com is the main source of information*
+
+      👤 *Author:*
+      • ${info.author.name}
+      • ${info.author.email}
+      • ${info.author.url}
+      • @${info.author.username}
+
+      👉 Type /donations to keep this bot alive 🙂
+    `);
+  });
+
+  bot.command("donations", ctx => {
+    const wallets = ["BTC", "ETH", "DASH", "BCH", "LTC", "CHA", "ADA"];
+    ctx.replyWithMarkdown(dedent`
+      *Thanks for caring about the project!*
+      It cost \`5 USD\` monthly to keep this bot alive.
+
+      ${wallets
+        .map(wallet => {
+          return dedent`
+            *${wallet}*:
+            \`${config.get(["DONATIONS", wallet].join(":"))}\`
+          `;
+        })
+        .join("\n\n")}
+    `);
   });
 
   // TODO: commands should accept RegEx.

@@ -1,17 +1,106 @@
 start - Start this bot
+help - Show help
+about - Bot info
+donations - Keep this bot alive
 top - Show top coins
 top_clp - Show top coins converted
 btc - Bitcoin
-btc_clp - Bitcoin converted
-eth - Ethereum
 xrp - Ripple
-bch - BCash
+eth - Ethereum
+bch - Bitcoin Cash
 ada - Cardano
 ltc - Litecoin
 miota - IOTA
-xem - NEM
 xlm - Stellar
+xem - NEM
 dash - Dash
 xmr - Monero
-neo - NEO
 eos - EOS
+neo - NEO
+btg - Bitcoin Gold
+qtum - Qtum
+etc - Ethereum Classic
+xrb - RaiBlocks
+trx - TRON
+bcc - BitConnect
+lsk - Lisk
+xvg - Verge
+icx - ICON
+omg - OmiseGO
+bts - BitShares
+zec - Zcash
+strat - Stratis
+ardr - Ardor
+ppt - Populous
+usdt - Tether
+waves - Waves
+hsr - Hshare
+bcn - Bytecoin
+kmd - Komodo
+steem - Steem
+doge - Dogecoin
+snt - Status
+sc - Siacoin
+bnb - Binance Coin
+rep - Augur
+gnt - Golem
+ark - Ark
+veri - Veritaseum
+dcr - Decred
+salt - SALT
+ven - VeChain
+dgb - DigiByte
+nxt - Nxt
+pivx - PIVX
+fct - Factom
+mona - MonaCoin
+req - Request Network
+maid - MaidSafeCoin
+drgn - Dragonchain
+gbyte - Byteball Bytes
+xzc - ZCoin
+bat - Basic Attention Token
+zrx - 0x
+etn - Electroneum
+pay - TenX
+wax - WAX
+knc - Kyber Network
+btcd - BitcoinDark
+sys - Syscoin
+powr - Power Ledger
+fun - FunFair
+btm - Bytom
+san - Santiment Network Token
+kcs - KuCoin Shares
+dgd - DigixDAO
+xp - Experience Points
+aion - Aion
+qash - QASH
+ae - Aeternity
+rdd - ReddCoin
+kin - Kin
+cvc - Civic
+storj - Storj
+vtc - Vertcoin
+wtc - Walton
+gas - Gas
+sky - Skycoin
+game - GameCredits
+icn - Iconomi
+ethos - Ethos
+gno - Gnosis
+elf - aelf
+link - ChainLink
+sub - Substratum
+rdn - Raiden Network Token
+rhoc - RChain
+nav - NAV Coin
+mana - Decentraland
+trig - Triggers
+bco - BridgeCoin
+smart - SmartCash
+qsp - Quantstamp
+bnt - Bancor
+ubq - Ubiq
+eng - Enigma
+block - Blocknet

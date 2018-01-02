@@ -6894,4 +6894,9 @@ module.exports = [
     name: "HEROcoin",
     symbol: "PLAY",
   },
+  {
+    id: "chaucha",
+    name: "Chaucha",
+    symbol: "CHA",
+  },
 ];
