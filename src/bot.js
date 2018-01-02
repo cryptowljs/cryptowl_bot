@@ -102,18 +102,69 @@ module.exports = function createBot(options) {
     Example:
     /BTC_CLP_USD
   */
-  bot.hears(/^\/([A-z0-9]+)_([A-z0-9]+)_([A-z0-9]+)$/, async ctx => {
-    const [, coin, change, convert] = ctx.match.map(s => s.toUpperCase());
-    ctx.reply([coin, change, convert]);
-  });
+  // bot.hears(/^\/([A-z0-9]+)_([A-z0-9]+)_([A-z0-9]+)$/, async ctx => {
+  //   const [, coin, change, convert] = ctx.match.map(s => s.toUpperCase());
+  //   ctx.reply([coin, change, convert]);
+  // });
 
   /*
     Example:
     /BTC_CLP
   */
   bot.hears(/^\/([A-z0-9]+)_([A-z0-9]+)$/, async ctx => {
-    const [, coin, change] = ctx.match.map(s => s.toUpperCase());
-    ctx.reply([coin, change]);
+    const [, coinId, convert] = ctx.match.map(s => s.toUpperCase());
+    const coin = coins.find(item => _.toUpper(item["symbol"]) === coinId);
+
+    if (!coin) {
+      return ctx.reply("Coin not found.");
+    }
+
+    const params = {
+      convert,
+    };
+    const response = await axios.get(`https://api.coinmarketcap.com/v1/ticker/${coin.id}/`, { params });
+    const data = response.data[0];
+
+    function formatChange(value) {
+      const number = _.toNumber(value);
+      const display = Math.abs(number).toFixed(2);
+      return `${number >= 0 ? "+" : "-"}${display}%`;
+    }
+
+    const columns = columnify(
+      [
+        { change: "1h", value: data["percent_change_1h"] },
+        { change: "1d", value: data["percent_change_24h"] },
+        { change: "1w", value: data["percent_change_7d"] },
+      ],
+      {
+        columns: ["change", "value"],
+        showHeaders: false,
+        config: {
+          "change": { // eslint-disable-line
+            dataTransform: text => `⌚️️ \`${text}:`,
+          },
+          "value": { // eslint-disable-line
+            align: "right",
+            dataTransform: text => `${formatChange(text)}\``,
+          },
+        },
+      }
+    );
+
+    const arrow = _.toNumber(data["percent_change_1h"]) >= 0 ? "↗️" : "↘️";
+    const [number, units] = coinDisplay(data, _.toUpper(convert));
+    const cap = numeral(data[`market_cap_${_.toLower(convert)}`])
+      .format("0.00 a")
+      .toUpperCase();
+
+    await ctx.replyWithMarkdown(dedent`
+      ${arrow} *${coin["name"]}*
+      🌐 \`${number}\` ${`/${units[0]}_${units[1]}`.replace("_", String.raw`\_`)}
+      💰 \`${cap} ${_.toUpper(convert)}\`
+
+      ${columns}
+    `);
   });
 
   /*
