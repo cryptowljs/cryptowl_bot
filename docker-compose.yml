@@ -14,3 +14,10 @@ services:
       - TELEGRAM__TOKEN
       - TELEGRAM__USERNAME
       - TELEGRAM__SECRET_PATH
+      - DONATIONS__BTC
+      - DONATIONS__ETH
+      - DONATIONS__DASH
+      - DONATIONS__BCH
+      - DONATIONS__LTC
+      - DONATIONS__CHA
+      - DONATIONS__ADA
