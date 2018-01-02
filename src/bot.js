@@ -29,6 +29,15 @@ module.exports = function createBot(options) {
   });
   bot.telegram.setWebhook(`${config.get("URL")}/${config.get("TELEGRAM:SECRET_PATH")}`);
 
+  // FIXME: group chat hack
+  // See: https://github.com/telegraf/telegraf/issues/287#issuecomment-354140157
+  bot.use((ctx, next) => {
+    if (ctx.message && typeof ctx.message.text !== "undefined") {
+      ctx.message.text = ctx.message.text.replace(new RegExp("@" + bot.options.username, "i"), "");
+    }
+    return next(ctx);
+  });
+
   // TODO: commands should accept RegEx.
 
   /*
