@@ -7,6 +7,8 @@ services:
       - 80:4000
       - 443:4000
       - 4000:4000
+    volumes:
+      - ./logs:/usr/src/app/logs
     environment:
       - LOG__LEVEL=info
       - LOG__DIR=logs
