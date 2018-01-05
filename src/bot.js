@@ -24,6 +24,26 @@ module.exports = function createBot(options) {
     return [number, [coin["symbol"], symbol]];
   }
 
+  function arrowDisplay(change = 0, emoji = false) {
+    if (Math.abs(change) > 10.0 && change >= 0) {
+      return emoji ? "⬆️" : "↑";
+    } else if (Math.abs(change) > 10.0 && change < 0) {
+      return emoji ? "⬇️" : "↓";
+    } else if (Math.abs(change) > 5.0 && change < 0) {
+      return emoji ? "⤵️" : "⤵︎";
+    } else if (Math.abs(change) > 5.0 && change >= 0) {
+      return emoji ? "⤴️" : "⤴︎";
+    } else if (Math.abs(change) > 3.0 && change < 0) {
+      return emoji ? "↘️" : "↘︎";
+    } else if (Math.abs(change) > 3.0 && change >= 0) {
+      return emoji ? "↗️" : "↗︎";
+    } else if (Math.abs(change) > 1.0 && change >= 0) {
+      return emoji ? "➡️" : "→";
+    } else {
+      return emoji ? "⏺" : "—";
+    }
+  }
+
   const bot = new Telegraf(config.get("TELEGRAM:TOKEN"), {
     username: config.get("TELEGRAM:USERNAME"),
   });
@@ -124,22 +144,7 @@ module.exports = function createBot(options) {
       const [number, units] = coinDisplay(coin, options.convert);
       const change = _.toNumber(coin["percent_change_1h"]);
 
-      let arrow = "—";
-      if (Math.abs(change) > 10.0 && change >= 0) {
-        arrow = "↑";
-      } else if (Math.abs(change) > 10.0 && change < 0) {
-        arrow = "↓";
-      } else if (Math.abs(change) > 5.0 && change < 0) {
-        arrow = "⤵︎";
-      } else if (Math.abs(change) > 5.0 && change >= 0) {
-        arrow = "⤴︎";
-      } else if (Math.abs(change) > 3.0 && change < 0) {
-        arrow = "↘︎";
-      } else if (Math.abs(change) > 3.0 && change >= 0) {
-        arrow = "↗︎";
-      } else if (Math.abs(change) > 1.0 && change >= 0) {
-        arrow = "→";
-      }
+      const arrow = arrowDisplay(change);
 
       return {
         change: arrow,
@@ -223,7 +228,8 @@ module.exports = function createBot(options) {
       }
     );
 
-    const arrow = _.toNumber(data["percent_change_1h"]) >= 0 ? "↗️" : "↘️";
+    const change = _.toNumber(data["percent_change_1h"]);
+    const arrow = arrowDisplay(change, true);
     const [number, units] = coinDisplay(data, _.toUpper(convert));
     const cap = numeral(data[`market_cap_${_.toLower(convert)}`])
       .format("0.00 a")
@@ -233,6 +239,7 @@ module.exports = function createBot(options) {
       ${arrow} *${coin["name"]}*
       🌐 \`${number}\` ${`/${units[0]}_${units[1]}`.replace("_", String.raw`\_`)}
       💰 \`${cap} ${_.toUpper(convert)}\`
+      🏆 \`#${data["rank"]}\`
 
       ${columns}
     `);
