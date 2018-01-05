@@ -8,6 +8,9 @@ services:
       - 443:4000
       - 4000:4000
     environment:
+      - LOG__LEVEL=info
+      - LOG__DIR=logs
+      - LOG__EXCEPTIONS=true
       - NODE_ENV=production
       - PORT=4000
       - URL

@@ -19,6 +19,10 @@ COPY . /usr/src/app
 RUN mkdir -p /usr/src/app/logs
 VOLUME /usr/src/app/logs
 
+# Create volume for logs
+RUN mkdir -p /usr/src/app/logs
+VOLUME /usr/src/app/logs
+
 EXPOSE 4000
 
 CMD ["yarn", "start"]

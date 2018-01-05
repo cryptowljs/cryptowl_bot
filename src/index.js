@@ -2,21 +2,25 @@
 
 const Koa = require("koa");
 const bodyParser = require("koa-bodyparser");
-const logger = require("koa-logger");
+const koaLogger = require("koa-logger");
 const Router = require("koa-router");
 
 const dedent = require("dedent");
 const _ = require("lodash");
 const moment = require("moment");
 
-const createBot = require("./bot");
 const configuration = require("./configuration");
+const createBot = require("./bot");
+const createLogger = require("./logger");
 const info = require("../package.json");
 
 const config = configuration();
 
+const logger = createLogger(config);
+
 // eslint-disable-next-line no-unused-vars
 const bot = createBot({
+  logger,
   config,
   info,
 });
@@ -24,7 +28,7 @@ const bot = createBot({
 const app = new Koa();
 const router = new Router();
 
-router.use(logger());
+router.use(koaLogger());
 router.use(bodyParser());
 
 router.get("/", ctx => {

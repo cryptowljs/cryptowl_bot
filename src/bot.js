@@ -14,7 +14,7 @@ const moneyData = require("@cryptolw/money-data");
 const coins = require("./data/meta");
 
 module.exports = function createBot(options) {
-  const { config, info } = options;
+  const { logger, config, info } = options;
 
   const { format } = formatter([moneyData.crypto, moneyData.fiat]);
 
@@ -48,6 +48,27 @@ module.exports = function createBot(options) {
     username: config.get("TELEGRAM:USERNAME"),
   });
   bot.telegram.setWebhook(`${config.get("URL")}/${config.get("TELEGRAM:SECRET_PATH")}`);
+
+  // First middleware
+  bot.use(async (ctx, next) => {
+    logger.info("Message received", {
+      text: ctx.message.text,
+      chat: ctx.chat,
+    });
+
+    // Error handler
+    try {
+      await next();
+    } catch (e) {
+      await ctx.reply("Uncaught error :(");
+      throw e;
+    }
+  });
+
+  // Error logger
+  bot.catch(err => {
+    logger.error("Uncaught error", err);
+  });
 
   // FIXME: group chat hack
   // See: https://github.com/telegraf/telegraf/issues/287#issuecomment-354140157

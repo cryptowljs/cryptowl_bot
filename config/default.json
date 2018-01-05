@@ -4,6 +4,11 @@
   "APP_URL": null,
   "NOW_URL": null,
   "URL": null,
+  "LOG": {
+    "LEVEL": "debug",
+    "DIR": "logs",
+    "EXCEPTIONS": false
+  },
   "TELEGRAM": {
     "TOKEN": null,
     "USERNAME": null,
