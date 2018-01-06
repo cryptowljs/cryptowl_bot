@@ -319,6 +319,7 @@ module.exports = function createBot(options) {
       ${arrow} *${coin["name"]}*
       🌐 \`${number}\` ${`/${units[0]}_${units[1]}`.replace("_", String.raw`\_`)}
       💰 \`${cap} USD\`
+      🏆 \`#${data["rank"]}\`
 
       ${columns}
     `);
