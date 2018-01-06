@@ -5,6 +5,7 @@ const dedent = require("dedent");
 const numeral = require("numeral");
 const axios = require("axios");
 const columnify = require("columnify");
+const util = require("util");
 const _ = require("lodash");
 
 const parse = require("@cryptolw/money-parse");
@@ -59,15 +60,26 @@ module.exports = function createBot(options) {
     // Error handler
     try {
       await next();
-    } catch (e) {
-      await ctx.reply("Uncaught error :(");
-      throw e;
+    } catch (err) {
+      // See: https://github.com/axios/axios#handling-errors
+      if (err.response) {
+        await ctx.reply("External API error.");
+      } else if (err.request) {
+        await ctx.reply("Internal connection error.");
+      } else {
+        await ctx.reply("Uncaught error :(");
+      }
+      throw err;
     }
   });
 
   // Error logger
   bot.catch(err => {
-    logger.error("Uncaught error", err);
+    try {
+      logger.error("Uncaught error", util.inspect(err));
+    } catch (e) {
+      console.error("Can't even parse log error", err); // eslint-disable-line no-console
+    }
   });
 
   // FIXME: group chat hack
