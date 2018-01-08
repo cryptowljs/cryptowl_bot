@@ -333,26 +333,11 @@ module.exports = function createBot(options) {
       .format("0.00 a")
       .toUpperCase();
 
-    const markets = CoinMarketCap.aggregateMarkets(data["markets"]);
-    const rows = markets.map(market => {
-      const share = numeral(market.share).format("0.00%");
-      const price = market.price["USD"];
-      const value = format(price, { code: true }).split(" ")[0];
-      const about = getCountry(market.symbol) || coins.find(item => _.toUpper(item["symbol"]) === market.symbol);
-      const emoji = about.emoji || "💎";
-      return dedent`
-        💱 ${link(units[0], market.symbol)} ➔ ${share}
-        ${emoji} \`${value}\` ${link(...units)}
-      `;
-    });
-
     await ctx.replyWithMarkdown(dedent`
       ${arrow} *${data.info["name"]}*
       🌐 \`${number}\` ${link(...units)}
       💰 \`${cap} USD\`
       🏆 \`#${data["rank"]}\`
-
-      ${rows.join("\n----\n")}
 
       ${columns}
     `);
