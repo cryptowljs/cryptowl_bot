@@ -38,6 +38,7 @@
     "axios": "^0.17.1",
     "bluebird": "^3.5.1",
     "columnify": "^1.5.4",
+    "country-data": "^0.0.31",
     "dedent": "^0.7.0",
     "dotenv": "^4.0.0",
     "koa": "^2.4.1",
@@ -50,6 +51,7 @@
     "nconf": "^0.8.5",
     "numeral": "^2.0.6",
     "rxjs": "^5.4.2",
+    "scrape-it": "^4.1.2",
     "telegraf": "^3.17.2",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^1.7.2"
