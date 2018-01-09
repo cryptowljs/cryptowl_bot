@@ -91,8 +91,10 @@ module.exports = function createBot(options) {
     return next(ctx);
   });
 
-  bot.command("start", ctx => {
-    ctx.replyWithMarkdown(dedent`
+  bot.command("start", async ctx => {
+    await ctx.replyWithChatAction("typing");
+
+    await ctx.replyWithMarkdown(dedent`
       👋 Hi there! This is Cryptowl Bot 🦉🔮
 
       This bot uses coinmarketcap.com as it's main source of information.
@@ -102,8 +104,10 @@ module.exports = function createBot(options) {
     `);
   });
 
-  bot.command("help", ctx => {
-    ctx.replyWithMarkdown(dedent`
+  bot.command("help", async ctx => {
+    await ctx.replyWithChatAction("typing");
+
+    await ctx.replyWithMarkdown(dedent`
       *Some commands:*
 
       \`/top[number][_convert]\`
@@ -118,8 +122,10 @@ module.exports = function createBot(options) {
     `);
   });
 
-  bot.command("about", ctx => {
-    ctx.replyWithMarkdown(dedent`
+  bot.command("about", async ctx => {
+    await ctx.replyWithChatAction("typing");
+
+    await ctx.replyWithMarkdown(dedent`
       *@cryptowl_bot (${info.version})*
       *License:* ${info.license}
       *Repository:* ${info.repository.url}
@@ -136,9 +142,11 @@ module.exports = function createBot(options) {
     `);
   });
 
-  bot.command("donations", ctx => {
+  bot.command("donations", async ctx => {
+    await ctx.replyWithChatAction("typing");
+
     const wallets = ["BTC", "ETH", "DASH", "BCH", "LTC", "CHA", "ADA"];
-    ctx.replyWithMarkdown(dedent`
+    await ctx.replyWithMarkdown(dedent`
       *Thanks for caring about the project!*
       It cost \`5 USD\` monthly to keep this bot alive.
 
@@ -163,6 +171,8 @@ module.exports = function createBot(options) {
     /top5_CLP
   */
   bot.hears(/^\/top(\d+)?_{0,1}([A-z0-9]+)?$/i, async ctx => {
+    await ctx.replyWithChatAction("typing");
+
     const [, limit, convert] = ctx.match;
 
     const { result, options } = await cmc.getTop({ limit, convert });
@@ -215,6 +225,8 @@ module.exports = function createBot(options) {
     /BTC_CLP
   */
   bot.hears(/^\/([A-z0-9]+)_([A-z0-9]+)$/, async ctx => {
+    await ctx.replyWithChatAction("typing");
+
     const [, coinId, convert] = ctx.match.map(s => s.toUpperCase());
 
     const { result: data, rates } = await cmc.getCoin(coinId, { convert });
@@ -292,6 +304,8 @@ module.exports = function createBot(options) {
     /BTC
   */
   bot.hears(/^\/([A-z0-9]+)$/, async ctx => {
+    await ctx.replyWithChatAction("typing");
+
     const [, coinId] = ctx.match.map(s => s.toUpperCase());
 
     const { result: data } = await cmc.getCoin(coinId);
