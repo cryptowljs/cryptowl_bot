@@ -278,7 +278,7 @@ module.exports = function createBot(options) {
       const share = numeral(market.share).format("0.00%");
       const price = parse(market.price["USD"][0] / rate, to);
       const value = format(price, { code: true }).split(" ")[0];
-      const about = getCountry(market.symbol) || coins.find(item => _.toUpper(item["symbol"]) === market.symbol);
+      const about = getCountry(market.symbol) || coins.find(item => _.toUpper(item["symbol"]) === market.symbol) || {};
       const emoji = about.emoji || "💎";
       return dedent`
         💱 ${link(units[0], market.symbol)} ➔ ${share}
