@@ -128,7 +128,7 @@ module.exports = function createBot(options) {
     await ctx.replyWithMarkdown(dedent`
       *@cryptowl_bot (${info.version})*
       *License:* ${info.license}
-      *Repository:* ${info.repository.url}
+      *Repository:* ${info.repository.url.replace("_", String.raw`\_`)}
 
       *coinmarketcap.com is the main source of information*
 

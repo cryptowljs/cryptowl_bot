@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cryptowljs/cryptowl-bot.git"
+    "url": "https://github.com/cryptowljs/cryptowl_bot.git"
   },
   "author": {
     "email": "patricio@lopezjuri.com",
