@@ -38,6 +38,28 @@
     numeral "^2.0.6"
     rxjs "^5.4.2"
 
+"@cryptolw/error@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@cryptolw/error/-/error-0.0.3.tgz#bd7e32dfa88725cf2ad8adb73d9ce547f41f797c"
+  dependencies:
+    es6-error "^4.0.2"
+
+"@cryptolw/exchange-cryptomkt@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@cryptolw/exchange-cryptomkt/-/exchange-cryptomkt-0.0.2.tgz#ad6ed2724b31dfa5db3dde438c4ce2a2d5919e16"
+  dependencies:
+    "@cryptolw/error" "^0.0.3"
+    "@cryptolw/money-parse" "^0.0.2"
+    millisecond "^0.1.2"
+
+"@cryptolw/exchange-surbtc@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@cryptolw/exchange-surbtc/-/exchange-surbtc-0.0.2.tgz#0237794e2270c59fb8b182a5a1440c8e638e3426"
+  dependencies:
+    "@cryptolw/error" "^0.0.3"
+    "@cryptolw/money-parse" "^0.0.2"
+    millisecond "^0.1.2"
+
 "@cryptolw/money-data@^0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@cryptolw/money-data/-/money-data-0.0.2.tgz#fd05785c9b90c72f050cdfd71ee74d92829d6478"
@@ -49,6 +71,12 @@
   resolved "https://registry.yarnpkg.com/@cryptolw/money-format/-/money-format-0.0.2.tgz#6515cbad1ddea48ee870b7220fb844d0db10679d"
   dependencies:
     accounting "^0.4.1"
+
+"@cryptolw/money-parse@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@cryptolw/money-parse/-/money-parse-0.0.2.tgz#4f1fd950260dde75a1f63a9b5eb320b58c45cba5"
+  dependencies:
+    numeral "^2.0.6"
 
 "@cryptolw/money-parse@^0.0.3":
   version "0.0.3"
@@ -2000,6 +2028,10 @@ micromatch@^3.1.4:
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
 
+millisecond@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/millisecond/-/millisecond-0.1.2.tgz#6cc5ad386241cab8e78aff964f87028eec92dac5"
+
 mime-db@~1.30.0:
   version "1.30.0"
   resolved "https://registry.yarnpkg.com/mime-db/-/mime-db-1.30.0.tgz#74c643da2dd9d6a45399963465b26d5ca7d71f01"
@@ -2603,7 +2635,7 @@ rx-lite@*, rx-lite@^4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/rx-lite/-/rx-lite-4.0.8.tgz#0b1e11af8bc44836f04a6407e92da42467b79444"
 
-rxjs@^5.4.2:
+rxjs@^5.4.2, rxjs@^5.5.6:
   version "5.5.6"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-5.5.6.tgz#e31fb96d6fd2ff1fd84bcea8ae9c02d007179c02"
   dependencies:

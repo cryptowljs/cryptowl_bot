@@ -66,17 +66,11 @@ class CoinMarketCap {
     return { result: response.data, options };
   }
 
-  async getCoin(id, opts = {}) {
+  async getCoinRates(id, opts = {}) {
     const coin = coins.find(item => _.toUpper(item["symbol"]) === _.toUpper(id));
     if (!coin) {
-      return { result: null };
+      return null;
     }
-
-    const params = {
-      convert: opts.convert ? _.toUpper(opts.convert) : undefined,
-    };
-    const response = await axios.get(`https://api.coinmarketcap.com/v1/ticker/${coin.id}/`, { params });
-    const api = response.data[0];
 
     const rates = {};
     for (const rate of RATES) {
@@ -163,21 +157,36 @@ class CoinMarketCap {
       page["rows"] = _.take(page["rows"], opts.limit);
     }
 
-    api["markets"] = page["rows"].map(item => {
+    const markets = page["rows"].map(item => {
       item["pair"] = item["pair"].sort(a => {
-        return a == api["symbol"] ? -1 : 1;
+        return a == coin["symbol"] ? -1 : 1;
       });
-      const native = item["pair"].find(currency => currency != api["symbol"]);
+      const native = item["pair"].find(currency => currency != coin["symbol"]);
       item.price.native = parse(item.price.native, native);
       item.volume.native = parse(item.volume.native, native);
       return item;
     });
-    api["info"] = coin;
-
-    return { result: api, rates: page["rates"] };
+    return { markets, rates: page["rates"] };
   }
 
-  static aggregateMarkets(markets = []) {
+  async getCoin(id, opts = {}) {
+    const coin = coins.find(item => _.toUpper(item["symbol"]) === _.toUpper(id));
+    if (!coin) {
+      return null;
+    }
+
+    const params = {
+      convert: opts.convert ? _.toUpper(opts.convert) : undefined,
+    };
+    const response = await axios.get(`https://api.coinmarketcap.com/v1/ticker/${coin.id}/`, { params });
+    const api = response.data[0];
+
+    api["info"] = coin;
+
+    return api;
+  }
+
+  static aggregateMarkets(markets = [], opts = {}) {
     const aggregation = new Map();
     for (const market of markets) {
       const trade = market["pair"][1];
@@ -209,7 +218,7 @@ class CoinMarketCap {
 
     return _(Array.from(aggregation.values())) // TODO: can be improved?
       .orderBy(["share"], ["desc"])
-      .take(7)
+      .take(opts.limit || 5)
       .map(item => {
         const currencies = ["USD", "BTC", item["symbol"]];
         item["price"] = _.transform(

@@ -9,6 +9,9 @@ const dedent = require("dedent");
 const _ = require("lodash");
 const moment = require("moment");
 
+const SurBTC = require("@cryptolw/exchange-surbtc");
+const CryptoMKT = require("@cryptolw/exchange-cryptomkt");
+
 const configuration = require("./configuration");
 const createBot = require("./bot");
 const createLogger = require("./logger");
@@ -18,9 +21,12 @@ const config = configuration();
 
 const logger = createLogger(config);
 
+const services = [new SurBTC(), new CryptoMKT()];
+
 // eslint-disable-next-line no-unused-vars
 const bot = createBot({
   logger,
+  services,
   config,
   info,
 });

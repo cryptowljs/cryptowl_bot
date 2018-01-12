@@ -1,6 +1,7 @@
 "use strict";
 
 const Telegraf = require("telegraf");
+const Bluebird = require("bluebird");
 const dedent = require("dedent");
 const numeral = require("numeral");
 const columnify = require("columnify");
@@ -13,10 +14,13 @@ const moneyData = require("@cryptolw/money-data");
 
 const coins = require("./data/meta");
 const { getCountry } = require("./data/countries");
+const { watchPairs } = require("./providers/exchanges");
 const CoinMarketCap = require("./providers/CoinMarketCap");
 
 module.exports = function createBot(options) {
   const { logger, config, info } = options;
+
+  const { sources } = watchPairs(options);
 
   const { format } = formatter([moneyData.crypto, moneyData.fiat]);
   const cmc = new CoinMarketCap();
@@ -92,8 +96,6 @@ module.exports = function createBot(options) {
   });
 
   bot.command("start", async ctx => {
-    await ctx.replyWithChatAction("typing");
-
     await ctx.replyWithMarkdown(dedent`
       👋 Hi there! This is Cryptowl Bot 🦉🔮
 
@@ -105,26 +107,38 @@ module.exports = function createBot(options) {
   });
 
   bot.command("help", async ctx => {
-    await ctx.replyWithChatAction("typing");
-
     await ctx.replyWithMarkdown(dedent`
       *Some commands:*
 
       \`/top[number][_convert]\`
       Ranked coins and optionally convert the _fiat_ value.
-      /top /top\_CLP /top20 /top20\_CLP
+      /top
+      /top\_CLP
+      /top20
+      /top20\_CLP
 
       \`/(coin)[_convert]\`
       Particular coin and optionally convert the _fiat_ value.
-      /BTC /eth /MIOTA\_CLP /neo\_eur
+      /BTC
+      /eth
+      /MIOTA\_CLP
+      /neo\_eur
+
+      \`/exchanges_(coin)_(convert)\`
+      Get exchanges with that pair
+      /exchanges\_BTC\_CLP
+      /exchanges\_ETH\_CLP
+
+      \`/rates_(coin)[_convert]\`
+      Get global exchange rates for that pair and convert
+      /rates\_BTC
+      /rates\_BTC\_CLP
 
       👉 Type /donations to keep this bot alive 🙂
     `);
   });
 
   bot.command("about", async ctx => {
-    await ctx.replyWithChatAction("typing");
-
     await ctx.replyWithMarkdown(dedent`
       *@cryptowl_bot (${info.version})*
       *License:* ${info.license}
@@ -143,8 +157,6 @@ module.exports = function createBot(options) {
   });
 
   bot.command("donations", async ctx => {
-    await ctx.replyWithChatAction("typing");
-
     const wallets = ["BTC", "ETH", "DASH", "BCH", "LTC", "CHA", "ADA"];
     await ctx.replyWithMarkdown(dedent`
       *Thanks for caring about the project!*
@@ -171,7 +183,7 @@ module.exports = function createBot(options) {
     /top5_CLP
   */
   bot.hears(/^\/top(\d+)?_{0,1}([A-z0-9]+)?$/i, async ctx => {
-    await ctx.replyWithChatAction("typing");
+    bot.telegram.sendChatAction(ctx.from.id, "typing"); // TODO: ctx.replyWithChatAction("typing") is broken
 
     const [, limit, convert] = ctx.match;
 
@@ -222,14 +234,139 @@ module.exports = function createBot(options) {
 
   /*
     Example:
-    /BTC_CLP
+    /exchanges_BTC_CLP
   */
-  bot.hears(/^\/([A-z0-9]+)_([A-z0-9]+)$/, async ctx => {
-    await ctx.replyWithChatAction("typing");
+  bot.hears(/^\/exchanges_([A-z0-9]+)_([A-z0-9]+)$/, async ctx => {
+    bot.telegram.sendChatAction(ctx.from.id, "typing"); // TODO: ctx.replyWithChatAction("typing") is broken
 
     const [, coinId, convert] = ctx.match.map(s => s.toUpperCase());
 
-    const { result: data, rates } = await cmc.getCoin(coinId, { convert });
+    const houses = [];
+    const identifier = [coinId, convert].join("/");
+    if (sources.value.has(identifier)) {
+      const exchanges = sources.value.get(identifier) || [];
+      const queries = exchanges
+        .map(exchange => exchange.getCurrent([[coinId, convert]]))
+        .map(p => Bluebird.resolve(p).reflect());
+
+      const results = await Bluebird.all(queries);
+
+      const data = results
+        .filter(inspection => inspection.isFulfilled())
+        .map(inspection => inspection.value()[0])
+        .map(
+          exchange => dedent`
+            🏦 *${exchange.exchange}* (${link(...exchange.pair)}):
+            📤 BID: \`${format(exchange.ask, { code: true })}\`
+            📥 ASK: \`${format(exchange.bid, { code: true })}\`
+            📊 Volumen: \`${format(exchange.volume, { code: true })}\`
+        `
+        );
+
+      houses.push(...data);
+    }
+
+    // Put additional and sources steps here.
+
+    if (_.isEmpty(houses)) {
+      await ctx.replyWithMarkdown(dedent`
+        Missing exchanges with that support :(
+      `);
+    } else {
+      await ctx.replyWithMarkdown(dedent`
+        ${houses.join("\n\n")}
+      `);
+    }
+  });
+
+  /*
+    Example:
+    /rates_BTC_CLP
+  */
+  bot.hears(/^\/rates_([A-z0-9]+)_([A-z0-9]+)$/, async ctx => {
+    bot.telegram.sendChatAction(ctx.from.id, "typing"); // TODO: ctx.replyWithChatAction("typing") is broken
+
+    const [, coinId, convert] = ctx.match.map(s => s.toUpperCase());
+
+    const data = await cmc.getCoin(coinId, { convert });
+    const { rates, markets } = await cmc.getCoinRates(coinId, { convert });
+    const to = _.toUpper(convert);
+
+    if (!data) {
+      return ctx.reply("Coin not found.");
+    } else if (!rates[to]) {
+      return ctx.reply("Conversion not supported yet.");
+    }
+
+    const [, units] = cmc.format(data, to);
+
+    const rate = rates[to];
+    const rows = CoinMarketCap.aggregateMarkets(markets, { limit: 10 }).map(market => {
+      const share = numeral(market.share).format("0.00%");
+      const price = parse(market.price["USD"][0] / rate, to);
+      const value = format(price, { code: true }).split(" ")[0];
+      const about = getCountry(market.symbol) || coins.find(item => _.toUpper(item["symbol"]) === market.symbol) || {};
+      const emoji = about.emoji || "💎";
+      return dedent`
+        💱 ${link(units[0], market.symbol)} ➔ ${share}
+        ${emoji} \`${value}\` ${link(...units)}
+      `;
+    });
+
+    await ctx.replyWithMarkdown(dedent`
+      ${rows.join("\n----\n")}
+
+      _rate: ${rate < 1 ? `1 USD = ${1 / rate} ${to}` : `1 ${to} = ${rate} USD`}_
+    `);
+  });
+
+  /*
+    Example:
+    /rates_BTC
+    TODO: DRY
+  */
+  bot.hears(/^\/rates_([A-z0-9]+)$/, async ctx => {
+    bot.telegram.sendChatAction(ctx.from.id, "typing"); // TODO: ctx.replyWithChatAction("typing") is broken
+
+    const [, coinId] = ctx.match.map(s => s.toUpperCase());
+
+    const data = await cmc.getCoin(coinId);
+    const { markets } = await cmc.getCoinRates(coinId);
+
+    if (!data) {
+      return ctx.reply("Coin not found.");
+    }
+
+    const [, units] = cmc.format(data, "USD");
+
+    const rows = CoinMarketCap.aggregateMarkets(markets, { limit: 10 }).map(market => {
+      const share = numeral(market.share).format("0.00%");
+      const price = parse(market.price["USD"][0], "USD");
+      const value = format(price, { code: true }).split(" ")[0];
+      const about = getCountry(market.symbol) || coins.find(item => _.toUpper(item["symbol"]) === market.symbol) || {};
+      const emoji = about.emoji || "💎";
+      return dedent`
+        💱 ${link(units[0], market.symbol)} ➔ ${share}
+        ${emoji} \`${value}\` ${link(...units)}
+      `;
+    });
+
+    await ctx.replyWithMarkdown(dedent`
+      ${rows.join("\n----\n")}
+    `);
+  });
+
+  /*
+    Example:
+    /BTC_CLP
+  */
+  bot.hears(/^\/([A-z0-9]+)_([A-z0-9]+)$/, async ctx => {
+    bot.telegram.sendChatAction(ctx.from.id, "typing"); // TODO: ctx.replyWithChatAction("typing") is broken
+
+    const [, coinId, convert] = ctx.match.map(s => s.toUpperCase());
+
+    const data = await cmc.getCoin(coinId, { convert });
+    const { rates } = await cmc.getCoinRates(coinId, { convert });
     const to = _.toUpper(convert);
 
     if (!data) {
@@ -273,30 +410,33 @@ module.exports = function createBot(options) {
       .toUpperCase();
 
     const rate = rates[to];
-    const markets = CoinMarketCap.aggregateMarkets(data["markets"]);
-    const rows = markets.map(market => {
-      const share = numeral(market.share).format("0.00%");
-      const price = parse(market.price["USD"][0] / rate, to);
-      const value = format(price, { code: true }).split(" ")[0];
-      const about = getCountry(market.symbol) || coins.find(item => _.toUpper(item["symbol"]) === market.symbol) || {};
-      const emoji = about.emoji || "💎";
-      return dedent`
-        💱 ${link(units[0], market.symbol)} ➔ ${share}
-        ${emoji} \`${value}\` ${link(...units)}
-      `;
-    });
 
-    await ctx.replyWithMarkdown(dedent`
+    const header = dedent`
       ${arrow} *${data.info["name"]}*
       🌐 \`${number}\` ${link(...units)}
       💰 \`${cap} ${_.toUpper(convert)}\`
       🏆 \`#${data["rank"]}\`
+    `;
 
-      ${rows.join("\n----\n")}
+    const links = dedent`
+      💡 /${data.info["symbol"]}
+      💡 /exchanges\_${data.info["symbol"]}\_${to}
+      💡 /rates\_${data.info["symbol"]}\_${to}
+    `;
+
+    const conversions = dedent`
+      _rate: ${rate < 1 ? `1 USD = ${1 / rate} ${to}` : `1 ${to} = ${rate} USD`}_
+    `;
+
+    await ctx.replyWithMarkdown(dedent`
+      ${header}
 
       ${columns}
+
+      ${links}
+
+      ${conversions}
     `);
-    // _rate: ${rate < 1 ? `1 USD = ${1 / rate} ${to}` : `1 ${to} = ${rate} USD`}_
   });
 
   /*
@@ -304,11 +444,11 @@ module.exports = function createBot(options) {
     /BTC
   */
   bot.hears(/^\/([A-z0-9]+)$/, async ctx => {
-    await ctx.replyWithChatAction("typing");
+    bot.telegram.sendChatAction(ctx.from.id, "typing"); // TODO: ctx.replyWithChatAction("typing") is broken
 
     const [, coinId] = ctx.match.map(s => s.toUpperCase());
 
-    const { result: data } = await cmc.getCoin(coinId);
+    const data = await cmc.getCoin(coinId);
 
     if (!data) {
       return ctx.reply("Coin not found.");
@@ -347,13 +487,24 @@ module.exports = function createBot(options) {
       .format("0.00 a")
       .toUpperCase();
 
-    await ctx.replyWithMarkdown(dedent`
+    const header = dedent`
       ${arrow} *${data.info["name"]}*
       🌐 \`${number}\` ${link(...units)}
       💰 \`${cap} USD\`
       🏆 \`#${data["rank"]}\`
+    `;
+
+    const links = dedent`
+      💡 /${data.info["symbol"]}\_CLP
+      💡 /rates\_${data.info["symbol"]}
+    `;
+
+    await ctx.replyWithMarkdown(dedent`
+      ${header}
 
       ${columns}
+
+      ${links}
     `);
   });
 
